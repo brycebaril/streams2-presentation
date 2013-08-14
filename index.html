@@ -669,18 +669,7 @@ Hi tHeRe hOw aRe yOu?
           </section>
 
           <section>
-            <h2>hyperquest</h2>
-            <pre><code>
-var hyperquest = require("hyperquest")
-var fs = require("fs")
-
-hyperquest.get("https://ravenwall.com")
-  .pipe(fs.createWriteStream("index.html"))
-            </code></pre>
-          </section>
-
-          <section>
-            <h2>vs non-streaming</h2>
+            <h2>Fetch a web page, non-streaming:</h2>
             <pre><code>
 var https = require("https")
 var fs = require("fs")
@@ -695,6 +684,29 @@ https.get("https://ravenwall.com", function (res) {
     fs.writeFile("file.html", contents)
   })
 })
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Vs. Streaming:</h2>
+            <pre><code>
+var https = require("https")
+var fs = require("fs")
+
+https.get("https://ravenwall.com", function (res) {
+  res.pipe(fs.createWriteStream('file.html'))
+})
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>hyperquest</h2>
+            <pre><code>
+var hyperquest = require("hyperquest")
+var fs = require("fs")
+
+hyperquest.get("https://ravenwall.com")
+  .pipe(fs.createWriteStream("index.html"))
             </code></pre>
           </section>
 
@@ -786,6 +798,17 @@ source.pipe(oddsOnly)
           <h1>THE END</h1>
           <h3>BY Bryce Baril <a href="https://ravenwall.com">Ravenwall.com</a></h3>
           <img src="gifs/stream.gif">
+        </section>
+
+        <section>
+          <h1>CascadiaJS Bonus Slide!</h1>
+          <p>
+            CascadiaJS is an awesome conference coming up November 14-15 in Vancouver, BC.
+            <br>
+            The Call for Proposals closes in two days! (August 15th) You still have time...
+            <br>
+            More at <a href="http://2013.cascadiajs.com/">2013.cascadiajs.com</a>.
+          </p>
         </section>
 
       </div>
