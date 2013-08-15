@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Streams2</title>
+
+    <meta name="description" content="A primer on Node.js Streams2 streams.">
+    <meta name="author" content="Bryce B. Baril">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Streams2</h1>
+          <h3>Node.js Streams2 Demystified</h3>
+          <p>
+            <small>Bryce Baril <a href="http://twitter.com/brycebaril">@brycebaril</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>The first time I tried to understand streams.</h2>
+          <img src="gifs/confused.gif">
+        </section>
+
+        <section>
+          <h2>wtf.pipe(wth)?</h2>
+          <img src="gifs/pipe_hose.gif" width=500 height=300>
+        </section>
+
+        <section>
+          <img src="gifs/spongebob_thinking.gif">
+        </section>
+
+        <section>
+          <h2>Ok, I got this.</h2>
+          <img src="gifs/stream_oops.gif">
+        </section>
+
+        <section>
+          <img src="gifs/skellington_thinking.gif">
+        </section>
+
+        <section>
+          <img src="gifs/kid_faucet.gif">
+        </section>
+
+        <section>
+          <section>
+            <h2>Streams</h2>
+            <p>
+              Streams are a first-class construct in Node.js for handling data. I like to think of them as as <a href="http://en.wikipedia.org/wiki/Lazy_evaluation">Lazy evaluation</a> applied to data.
+            </p>
+          </section>
+
+          <section>
+            <h2>Stream Components</h2>
+            <p>
+              There are essentially three major concepts with Streams:
+            </p>
+            <ol>
+              <li>The Source</li>
+              <li>The Pipeline</li>
+              <li>The Sink</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>Source</h2>
+            <p>
+              The data in the stream comes from somewhere -- <a href="http://nodejs.org/api/fs.html#fs_fs_createreadstream_path_options">disk</a>, a <a href="http://nodejs.org/api/http.html#http_class_http_clientrequest">http server</a>, or your own custom source. A streaming source allows you to process the content lazily, you only need to buffer what you need, and you don't need to block if the source is slow.
+            </p>
+          </section>
+
+          <section>
+            <h2>Pipeline</h2>
+            <p>
+              Often you want to do something to the data between the Source and the Sink. Streams allow you to lazily apply your filters or transformations.
+            </p>
+          </section>
+
+          <section>
+            <h2>Sink</h2>
+            <p>
+              Where you're putting your data -- <a href="http://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options">disk</a>, a <a href="http://nodejs.org/api/http.html#http_class_http_serverresponse">http client</a>, or your own custom sink.  A streaming sink gives you flexibility when writing your data. Only buffer what you need, without blocking.
+            </p>
+          </section>
+
+        </section>
+
+        <section>
+          <h2>Stream Benefits</h2>
+          <ul>
+            <li>Lazily produce or consume data in buffered chunks.</li>
+            <li>Evented and non-blocking</li>
+            <li>Low memory footprint</li>
+            <li>Automatically handle back-pressure</li>
+            <li>Buffers allow you to work around the V8 heap memory limit</li>
+            <li>Most core Node.js content sources/sinks are streams already!</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Streams2</h2>
+          <p>
+            <a href="http://nodejs.org/api/stream.html">Streams2</a> are the second-generation of Streams in Node.js core. The interface was re-written to make it more accessible.
+          </p>
+        </section>
+
+        <section>
+          <h2>Streams2 Node 0.8 Compatability</h2>
+          <p>
+            Streams2 were originally developed by <a href="https://twitter.com/izs">@izs</a> as a npm module that can be used to add streams2 support to Node 0.8: <a href="http://npm.im/readable-stream">readable-stream</a>
+          </p>
+          <pre><code>
+            var Transform = require("stream").Transform
+              || require("readable-stream/transform")
+          </code></pre>
+          <p>
+            This works <strong>most</strong> of the time.
+          </p>
+        </section>
+
+        <section>
+          <h2>Streams3</h2>
+          <p>
+            <a href="http://nodejs.org/docs/v0.11.5/api/stream.html">Streams3</a> Is the next version, which is in 0.11.5 now and will be in 0.12. Streams3 is streams2 with better support for streams1 style streams. <br> 1 | 2 = 3
+          </p>
+        </section>
+
+        <section>
+          <h1><strike>Streams2</strike> Streams3</h1>
+          <h3>Node.js <strike>Streams2</strike> Streams3 Demystified</h3>
+          <p>
+            <small>Bryce Baril <a href="http://twitter.com/brycebaril">@brycebaril</a></small>
+          </p>
+        </section>
+
+        <section>
+          <h2>Streams2 Classes</h2>
+          <p>
+            There are five Classes of Streams2:
+          </p>
+          <ul>
+            <li>Readable -- Data Sources</li>
+            <li>Writable -- Data Sinks</li>
+            <li>Duplex -- Both a Source and a Sink</li>
+            <li>Transform -- In-flight stream operations</li>
+            <li>Passthrough -- Stream spy</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>Readable</h2>
+            <p>
+              Use a Readable stream when supplying data as a stream. <br> Think: Spigot/Faucet.
+            </p>
+          </section>
+
+        <section>
+          <img src="gifs/dog_faucet.gif">
+        </section>
+
+          <section>
+            <h2>How to implement Readable</h2>
+            <ol>
+              <li>Subclass stream.Readable</li>
+              <li>Implement a `_read(size)` method.</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>The `_read(size)` method:</h2>
+            <ul>
+              <li>`size` is in bytes, but can be ignored (especially for objectMode streams)</li>
+              <li>`_read(size)` must call this.push(chunk) to send a chunk to the consumer</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>Readable options</h2>
+            <ul>
+              <li>`highWaterMark` Number: The maximum number of bytes to store in the internal buffer before ceasing to read. Default: 16kb</li>
+              <li>`encoding` String: If set, buffers will be decoded to strings instead of passing buffers. Default: null</li>
+              <li>`objectMode` Boolean: Instead of using buffers/strings, use Javascript objects. Default: false
+            </ul>
+          </section>
+
+          <section>
+            <h2>How to use a Readable stream</h2>
+            <ul>
+              <li>use `readable.pipe(target)`</li>
+              <li>use `readable.read(size)`</li>
+              <li>`readable.on("data", /* ... */)`</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>A simple Readable stream</h2>
+            <pre><code>
+var Readable = require("stream").Readable
+  || require("readable-stream/readable")
+var inherits = require("util").inherits
+
+function Source(options) {
+  Readable.call(this, options)
+  this.content = "The quick brown fox jumps over the lazy dog."
+}
+inherits(Source, Readable)
+Source.prototype._read = function (size) {
+  if (!this.content) this.push(null)
+  else {
+    this.push(this.content.slice(0, size))
+    this.content = this.content.slice(size)
+  }
+}
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Using our example:</h2>
+            <pre><code>
+var s = new Source()
+console.log(s.read(10).toString())
+console.log(s.read(10).toString())
+console.log(s.read(10).toString())
+console.log(s.read(10).toString())
+console.log(s.read(10).toString())
+
+// The quick 
+// brown fox 
+// jumps over
+//  the lazy 
+// dog.
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Handy abstractions/modules:</h2>
+            <ul>
+              <li><a href="http://npm.im/stream-spigot">stream-spigot</a> Creates readable streams from Arrays or simple functions.</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Writable</h2>
+            <p>
+              Use a Writable stream when collecting data from a stream. <br> Think: Drain/Collect.
+            </p>
+          </section>
+
+        <section>
+          <img src="gifs/drain.gif">
+        </section>
+
+        <section>
+          <img src="gifs/cat_pipe.gif" width=500 height=300>
+        </section>
+
+          <section>
+            <h2>Writable options</h2>
+            <ul>
+              <li>`highWaterMark` Number: The maximum number of bytes to store in the internal buffer before ceasing to read. Default: 16kb</li>
+              <li>`decodeStrings` Boolean: Whether to decode strings to Buffers before passing them to _write(). Default: true</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>How to implement Writable</h2>
+            <ol>
+              <li>Subclass stream.Writable</li>
+              <li>Implement a `_write(chunk, encoding, callback)` method.</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>The _write() method</h2>
+            <ul>
+              <li>chunk is the content to write</li>
+              <li>Call callback() when you're done with this chunk</li>
+            </ul>
+          </section>
+
+
+          <section>
+            <h2>How to use a Writable stream</h2>
+            <ol>
+              <li>source.pipe(writable)</li>
+              <li>writable.write(chunk [,encoding] [,callback])</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>A simple Writable stream</h2>
+            <pre><code>
+var Writable = require("stream").Writable
+  || require("readable-stream/writable")
+var inherits = require("util").inherits
+
+function Drain(options) {
+  Writable.call(this, options)
+}
+inherits(Drain, Writable)
+Drain.prototype._write = function (chunk, encoding, callback) {
+  console.log(chunk.toString())
+  callback()
+}
+          </code></pre>
+          </section>
+
+          <section>
+            <h2>Using our examples so far:</h2>
+            <pre><code>
+var s = new Source()
+var d = new Drain()
+s.pipe(d)
+
+// The quick brown fox jumps over the lazy dog.
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Handy abstractions/modules:</h2>
+            <ul>
+              <li><a href="http://npm.im/concat-stream">concat-stream</a> A *streams1* stream drain.</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Duplex</h2>
+            <p>
+              Use a Duplex stream when you accept input OR output, but as different streams. It is simply both a Readable and a Writable stream. <br> Think: Server
+            </p>
+          </section>
+
+        <section>
+          <iframe width="560" height="315" src="http://www.youtube.com/embed/jyaLZHiJJnE" frameborder="0" allowfullscreen></iframe>
+        </section>
+
+          <section>
+            <h2>How to implement Duplex</h2>
+            <ol>
+              <li>Subclass stream.Duplex</li>
+              <li>Implement a `_read(size)` method.</li>
+              <li>Implement a `_write(chunk, encoding, callback)` method.</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>Duplex options</h2>
+            <p>
+              Superset of Readable and Writable options.
+            </p>
+          </section>
+
+          <section>
+            <h2>How to use a Duplex stream</h2>
+            <ul>
+              <li>input.pipe(duplex)</li>
+              <li>duplex.pipe(output)</li>
+              <li>duplex.on("data", /* ... */)</li>
+              <li>duplex.write()</li>
+              <li>duplex.read()</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>A simple Duplex stream</h2>
+            <pre><code>
+var Duplex = require("stream").Duplex
+  || require("readable-stream/duplex")
+var inherits = require("util").inherits
+
+function Server(options) {
+  Duplex.call(this, options)
+  this.queue = []
+}
+inherits(Server, Duplex)
+Server.prototype._read = function (size) {
+  this.push(this.queue.shift())
+}
+Server.prototype._write = function (chunk, encoding, callback) {
+  this.queue.push(Buffer.concat([new Buffer("REC: "), chunk, new Buffer("\n")]))
+  callback()
+}
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Using our example:</h2>
+            <pre><code>
+var s = new Server()
+s.write("HI THERE")
+s.write("HOW ARE YOU?")
+s.pipe(process.stdout)
+
+// REC: HI THERE
+// REC: HOW ARE YOU?
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Handy abstractions/modules</h2>
+            <p>
+              I don't actually know of any, nor do I tend to implement Duplex often.
+            </p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Transform</h2>
+            <p>
+              Use a Transform stream when you want to operate on a stream in transit. This is a special kind of Duplex stream where the input and output stream are the same stream. <br> Think: Filter/Map
+            </p>
+          </section>
+
+        <section>
+          <img src="gifs/dress_transform.gif" width=500 height=300>
+        </section>
+
+        <section>
+          <img src="gifs/transformer.gif" width=500 height=300>
+        </section>
+
+          <section>
+            <h2>How to implement Transform</h2>
+            <ol>
+              <li>Subclass stream.Transform</li>
+              <li>Implement a `_transform(chunk, encoding, callback)` method.</li>
+              <li>Optionally implement a `_flush(callback)` method.</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2>The `_transform(chunk, encoding, callback)` method:</h2>
+            <ul>
+              <li>Call `this.push(something)` to forward it to the next consumer.</li>
+              <li>You don't have to push anything, this will skip a chunk.</li>
+              <li>You *must* call `callback` one time per _transform call.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>The `_flush(callback)` method:</h2>
+            <p>
+              When the stream ends, this is your chance to do any cleanup or last-minute `this.push()` calls to clear any buffers or work. Call `callback()` when done.
+            </p>
+          </section>
+
+          <section>
+            <h2>Transform options</h2>
+            <p>
+              Superset of Readable and Writable options.
+            </p>
+          </section>
+
+          <section>
+            <h2>How to use a Transform stream</h2>
+            <ul>
+              <li>source.pipe(transform).pipe(drain)</li>
+              <li>transform.on("data", /* ... */)</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>A simple Transform stream</h2>
+            <pre><code>
+var Transform = require("stream").Transform
+  || require("readable-stream/transform")
+var inherits = require("util").inherits
+
+function ToUpper (options) {
+  Transform.call(this, options)
+}
+inherits(ToUpper, Transform)
+ToUpper.prototype._transform = function (chunk, encoding, callback) {
+  var str = chunk.toString().toUpperCase()
+  this.push(str)
+  callback()
+}
+          </code></pre>
+          </section>
+
+          <section>
+            <h2>Using our example:</h2>
+            <pre><code>
+var s = new Source()
+var d = new Drain()
+var tx = new ToUpper()
+
+s.pipe(tx).pipe(d)
+
+// THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Handy abstractions/modules</h2>
+            <ul>
+              <li><a href="http://npm.im/through2">through2</a> makes it easy to generate Transforms without all the subclassing boilerplate.</li>
+              <li><a href="http://npm.im/through2-filter">throug2-filter</a> Create simple stream filters.</li>
+              <li><a href="http://npm.im/through2-map">throug2-map</a> Create simple stream map operations.</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Passthrough</h2>
+            <p>
+              Most commonly Passthrough streams are used for testing. They are exactly a Transform stream that does no transformations. <br> Think: spy
+            </p>
+          </section>
+
+         <section>
+            <h2>How to use a Passthrough stream</h2>
+            <p>Short answer: Don't</p>
+            <p>Use <a href="http://npm.im/through2-spy">through2-spy</a> instead.</p>
+          </section>
+
+          <section>
+            <h2>A through2-spy</h2>
+            <pre><code>
+var spy = require("through2-spy")
+
+var bytes = 0
+// Spy on a pipeline, counting the number of bytes it has passed
+var counter = spy(function (chunk) {bytes += chunk.length})
+
+source.pipe(counter).pipe(drain)
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Buffering</h2>
+            <p>
+              Streams2 handle buffering and backpressure automatically.
+            </p>
+          </section>
+
+          <section>
+            <img src="gifs/backpressure.gif" width=500 height=300>
+          </section>
+
+          <section>
+            <h2>Readable Buffering</h2>
+            <p>
+              Readable streams (Readable/Duplex/Transform) buffer when you call `this.push(chunk)` internally until the stream is read.
+            </p>
+          </section>
+
+          <section>
+            <img src="gifs/cat_pipe3.gif" width=500 height=300>
+          </section>
+
+          <section>
+            <h2>Writable Buffering</h2>
+            <p>
+              Writable streams (Writable/Duplex/Transform) buffer when written to, draining as they are read or processed.
+            </p>
+          </section>
+
+          <section>
+            <img src="gifs/cat_pipe4.gif" width=500 height=300>
+          </section>
+
+          <section>
+            <h2>stream.read(0)</h2>
+            <p>
+              You can trigger a refresh of the system without consuming any data by calling `.read(0)` on a readable stream. You probably won't need to do this.
+            </p>
+          </section>
+
+          <section>
+            <h2>stream.push('') or stream.push(null)</h2>
+            <p>
+              Pushing a zero-byte string, or null for Object mode will terminate the pipeline.
+            </p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Errors</h2>
+            <p>
+              Streams are EventEmitters, so they get traditional EventEmitter error handling.
+              <br>
+              I.e. Either add an 'error' listener to catch errors or let them bubble as exceptions.
+            </p>
+          </section>
+
+          <section>
+            <h2>Passing Errors</h2>
+            <p>
+              Either Emit an 'error' event, or put an Error in the first argument of the `callback` in _write or _transform to signal an error and abort the stream.
+              <br>Example: <a href="http://npm.im/stream-meter">stream-meter</a>
+            </p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Using Streams</h2>
+            <p>
+              These last few slides are some simple examples of using streams in node.
+            </p>
+          </section>
+
+          <section>
+            <h2>through2-map</h2>
+            <pre><code>
+var map = require("through2-map")
+
+var alter = map(function (buf) {
+  var outBuf = new Buffer(buf.length)
+  for (var i = 0; i < buf.length; i++) {
+    if (i % 2 == 0 && buf[i] > 96 && buf[i] < 123)
+      outBuf[i] = buf[i] - 32
+    else
+      outBuf[i] = buf[i]
+  }
+  return outBuf
+})
+
+process.stdin.pipe(alter).pipe(process.stdout)
+            </code></pre>
+          </section>
+
+          <section>
+            <pre><code>
+$ echo "Hi there how are you?" | node example.js
+Hi tHeRe hOw aRe yOu?
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Fetch a web page, non-streaming:</h2>
+            <pre><code>
+var https = require("https")
+var fs = require("fs")
+
+https.get("https://ravenwall.com", function (res) {
+  var contents = ''
+  res.on("data", function (buffer) {
+    // WARNING! Not multi-byte character safe!
+    contents += buffer.toString()
+  })
+  res.on("end", function () {
+    fs.writeFile("file.html", contents)
+  })
+})
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Vs. Streaming:</h2>
+            <pre><code>
+var https = require("https")
+var fs = require("fs")
+
+https.get("https://ravenwall.com", function (res) {
+  res.pipe(fs.createWriteStream('file.html'))
+})
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>hyperquest</h2>
+            <pre><code>
+var hyperquest = require("hyperquest")
+var fs = require("fs")
+
+hyperquest.get("https://ravenwall.com")
+  .pipe(fs.createWriteStream("index.html"))
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>objectMode</h2>
+            <p>Let's make a source:</p>
+            <pre><code>
+var spigot = require("stream-spigot")
+
+var count = 0
+function gen(next) {
+  if (count++ > 20) return next()
+  setTimeout(function () {
+    next(null, {time: Date.now(), id: count})
+  }, 25)
+}
+var source = spigot(gen, {objectMode: true})
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>objectMode (cont.)</h2>
+            <p>Do some filtering:</p>
+            <pre><code>
+var filter = require("through2-filter")
+
+var oddsOnly = filter({objectMode: true}, function (record) {
+  if (record.time % 2 != 0) return true
+})
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>objectMode (cont.)</h2>
+            <p>Do some modification:</p>
+            <pre><code>
+var map = require("through2-map")
+
+var gap = map({objectMode: true}, function (record) {
+  if (this.last == null)
+    record.gap = 0
+  else
+    record.gap = record.time - this.last.time
+  this.last = record
+  return record
+})
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>objectMode (cont.)</h2>
+            <p>Collect the results:</p>
+            <pre><code>
+var concat = require("concat-stream")
+
+function collect(data) {
+  console.log(data)
+}
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>objectMode (cont.)</h2>
+            <p>Create the pipeline:</p>
+            <pre><code>
+source.pipe(oddsOnly)
+  .pipe(gap)
+  .pipe(concat(collect))
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>objectMode results</h2>
+            <pre><code>
+[ { time: 1376242414241, id: 1, gap: 0 },
+  { time: 1376242414269, id: 2, gap: 28 },
+  { time: 1376242414345, id: 5, gap: 76 },
+  { time: 1376242414421, id: 8, gap: 76 },
+  { time: 1376242414523, id: 12, gap: 102 },
+  { time: 1376242414599, id: 15, gap: 76 },
+  { time: 1376242414675, id: 18, gap: 76 },
+  { time: 1376242414751, id: 21, gap: 76 } ]
+            </code></pre>
+          </section>
+
+        </section>
+
+        <section>
+          <h1>THE END</h1>
+          <h3>BY Bryce Baril <a href="https://ravenwall.com">Ravenwall.com</a></h3>
+          <img src="gifs/stream.gif">
+        </section>
+
+        <section>
+          <h2>CascadiaJS Bonus Slide!</h2>
+          <p>
+            CascadiaJS is an awesome conference coming up November 14-15 in Vancouver, BC.
+            <br>
+            The Call for Proposals closes in two days! (August 15th) You still have time...
+            <br>
+            More at <a href="http://2013.cascadiajs.com/">2013.cascadiajs.com</a>.
+          </p>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
